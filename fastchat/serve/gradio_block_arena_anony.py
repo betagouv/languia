@@ -16,7 +16,7 @@ from fastchat.constants import (
     BLIND_MODE_INPUT_CHAR_LEN_LIMIT,
     CONVERSATION_TURN_LIMIT,
 )
-from fastchat.model.model_adapter import get_conversation_template
+from fastchat.model.model_adapter_light import get_conversation_template
 from fastchat.serve.gradio_block_arena_named import flash_buttons
 from fastchat.serve.gradio_web_server import (
     State,

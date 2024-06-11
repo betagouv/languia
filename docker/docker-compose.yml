@@ -1,8 +1,8 @@
 services:
   fastchat-controller:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: "../"
+      dockerfile: docker/Dockerfile
     image: fastchat:latest
     ports:
       - "21001:21001"
@@ -26,16 +26,16 @@ services:
   #   entrypoint: ["python3.9", "-m", "fastchat.serve.huggingface_api_worker", "--model-info-file", "/model-info-file.json", "--worker-address", "http://fastchat-model-worker:21002", "--controller-address", "http://fastchat-controller:21001", "--host", "0.0.0.0", "--port", "21002"]
   fastchat-api-server:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     image: fastchat:latest
     ports:
       - "8000:8000"
     entrypoint: ["python3.9", "-m", "fastchat.serve.openai_api_server", "--controller-address", "http://fastchat-controller:21001", "--host", "0.0.0.0", "--port", "8000"]
   fastchat-gradio-web-server:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     image: fastchat:latest
     ports:
       - "8001:8001"

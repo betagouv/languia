@@ -27,7 +27,7 @@ from fastchat.constants import (
     CONVERSATION_TURN_LIMIT,
     SESSION_EXPIRATION_TIME,
 )
-from fastchat.model.model_adapter import (
+from fastchat.model.model_adapter_light import (
     get_conversation_template,
 )
 from fastchat.model.model_registry import get_model_info, model_info
