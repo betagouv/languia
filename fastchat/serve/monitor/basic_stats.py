@@ -11,20 +11,17 @@ import plotly.express as px
 import plotly.graph_objects as go
 from tqdm import tqdm
 
-
-NUM_SERVERS = 14
-LOG_ROOT_DIR = "~/fastchat_logs"
+LOG_ROOT_DIR = "data"
 
 
 def get_log_files(max_num_files=None):
     log_root = os.path.expanduser(LOG_ROOT_DIR)
     filenames = []
-    for i in range(NUM_SERVERS):
-        for filename in os.listdir(f"{log_root}/server{i}"):
-            if filename.endswith("-conv.json"):
-                filepath = f"{log_root}/server{i}/{filename}"
-                name_tstamp_tuple = (filepath, os.path.getmtime(filepath))
-                filenames.append(name_tstamp_tuple)
+    for filename in os.listdir(f"{log_root}"):
+        if filename.endswith("-conv.json"):
+            filepath = f"{log_root}/{filename}"
+            name_tstamp_tuple = (filepath, os.path.getmtime(filepath))
+            filenames.append(name_tstamp_tuple)
     # sort by tstamp
     filenames = sorted(filenames, key=lambda x: x[1])
     filenames = [x[0] for x in filenames]

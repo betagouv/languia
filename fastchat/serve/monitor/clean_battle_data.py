@@ -17,7 +17,7 @@ import tiktoken
 from collections import Counter
 import shortuuid
 
-from fastchat.serve.monitor.basic_stats import get_log_files, NUM_SERVERS
+from fastchat.serve.monitor.basic_stats import get_log_files
 from fastchat.utils import detect_language
 
 
