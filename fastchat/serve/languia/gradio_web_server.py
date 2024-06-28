@@ -137,6 +137,8 @@ parser.add_argument(
     "--gradio-root-path",
     type=str,
     help="Sets the gradio root path, eg /abc/def. Useful when running behind a reverse-proxy or at a custom URL path prefix",
+    # FIXME: try no to commit this...
+    default="/app"
 )
 parser.add_argument(
     "--debug",
@@ -244,9 +246,9 @@ if __name__ == "__main__":
     # Note: access via e.g. DOMAIN/file=assets/fonts/Marianne-Bold.woff
     demo.launch(
         allowed_paths=[
-            "/app/assets/fonts",
-            "/app/assets/icons",
-            "/app/assets/js",
+            f"{args.gradio_root_path}/assets/fonts",
+            f"{args.gradio_root_path}/assets/icons",
+            f"{args.gradio_root_path}/assets/js",
         ],
         server_name=args.host,
         server_port=args.port,
