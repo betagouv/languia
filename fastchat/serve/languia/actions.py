@@ -40,6 +40,7 @@ def vote_last_response(
     )
     yield names + ("",)
 
+
 # TODO: refacto: why the loop?
 def leftvote_last_response(
     state0, state1, model_selector0, model_selector1, request: gr.Request
@@ -59,13 +60,13 @@ def rightvote_last_response(
         yield x
 
 
-def tievote_last_response(
-    state0, state1, model_selector0, model_selector1, request: gr.Request
-):
-    for x in vote_last_response(
-        [state0, state1], "tievote", [model_selector0, model_selector1], request
-    ):
-        yield x
+# def tievote_last_response(
+#     state0, state1, model_selector0, model_selector1, request: gr.Request
+# ):
+#     for x in vote_last_response(
+#         [state0, state1], "tievote", [model_selector0, model_selector1], request
+#     ):
+#         yield x
 
 
 def bothbad_vote_last_response(
@@ -77,22 +78,47 @@ def bothbad_vote_last_response(
         yield x
 
 
-def send_preferences(
+# def vote(conversations_state, vote_type, request: gr.Request):
+#     models_names = [
+#         conversations_state[0].model_name,
+#         conversations_state[1].model_name,
+#     ]
+
+#     vote_last_response(
+#         conversations_state[0],
+#         conversations_state[1],
+#         models_names[0],
+#         models_names[1],
+#         vote_type,
+#         request,
+#     )
+
+
+def vote_preferences(
     state0,
     state1,
-    model_selector0,
-    model_selector1,
+    which_model_radio,
     ressenti_checkbox,
+    comments_text,
     request: gr.Request,
 ):
-    print(ressenti_checkbox)
-    for x in vote_last_response(
-        [state0, state1],
-        f"ressenti: {str(ressenti_checkbox)}",
-        [model_selector0, model_selector1],
-        request,
-    ):
-        yield x
+    conversations_state = [state0, state1]
+    models_names = [
+        conversations_state[0].model_name,
+        conversations_state[1].model_name,
+    ]
+    if which_model_radio == "Aucun des deux":
+        bothbad_vote_last_response(conversations_state[0], conversations_state[1], conversations_state[0].model_name, conversations_state[1].model_name, request)
+    elif which_model_radio == "Modèle A":
+        leftvote_last_response(conversations_state[0], conversations_state[1], conversations_state[0].model_name, conversations_state[1].model_name, request)
+    elif which_model_radio == "Modèle B":
+        rightvote_last_response(conversations_state[0], conversations_state[1], conversations_state[0].model_name, conversations_state[1].model_name, request)
+    else:
+        raise (1)
+    vote = {"chosen_model": which_model_radio, "ressenti": ressenti_checkbox}
+    # vote_str = (f"{which_model_radio}_"+"-".join(ressenti_checkbox))
+    vote_str = json.dumps(vote)
+    return vote_last_response(conversations_state, models_names, vote_str, request)
 
 
 def accept_tos(request: gr.Request):
@@ -104,7 +130,7 @@ def accept_tos(request: gr.Request):
         # accept_tos_btn:
         gr.update(visible=False),
         # mode_screen:
-        gr.update(visible=True)
+        gr.update(visible=True),
     )
 
 
