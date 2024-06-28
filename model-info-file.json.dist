@@ -1,0 +1,8 @@
+{
+  "meta-llama/Meta-Llama-3-8B-Instruct": {
+    "api_base": "https://api-inference.huggingface.co/models",
+    "token": "",
+    "context_length": "4096",
+    "model_path": "meta-llama/Meta-Llama-3-8B-Instruct"
+  }
+}

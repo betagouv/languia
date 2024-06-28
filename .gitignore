@@ -2,8 +2,12 @@
 __pycache__
 *.pyc
 *.egg-info
-dist
+# dist
 .venv
+venv
+
+# JS
+node_modules
 
 # Log
 *.log
@@ -34,3 +38,4 @@ build
 serve_images
 val2014
 vqa_examples
+docker/.env

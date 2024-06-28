@@ -1,0 +1,15 @@
+{
+  "microsoft/Phi-3-mini-4k-instruct": {
+    "api_base": "https://api-inference.huggingface.co/v1/",
+    "api_type": "openai",
+    "api_key": "",
+    "model_name": "microsoft/Phi-3-mini-4k-instruct",
+    "anony_only": false,
+    "recommended_config": {
+      "temperature": 0.7,
+      "top_p": 1.0
+    },
+    "text-arena": true,
+    "vision-arena": false
+  }
+}
