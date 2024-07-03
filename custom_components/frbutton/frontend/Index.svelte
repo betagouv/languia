@@ -10,6 +10,7 @@
 
 	export let elem_id = "";
 	export let elem_classes: string[] = [];
+	export let badges: [string, string | string][] = [];
 	export let visible = true;
 	export let value: string | null;
 	export let title: string | null;
@@ -27,6 +28,7 @@
 
 <Button
 	{value}
+	{badges}
 	{title}
 	{variant}
 	{elem_id}

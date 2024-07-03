@@ -8,6 +8,7 @@
 	export let size: "sm" | "lg" = "lg";
 	export let value: string | null = null;
 	export let title: string | null = null;
+	export let badges: [string, string | string][] = [];
 	export let link: string | null = null;
 	export let icon: FileData | null = null;
 	export let disabled = false;
@@ -31,6 +32,11 @@
 			: null}
 		id={elem_id}
 	>
+		{#each badges as [display_value, color_value], i (i)}
+		<p class="fr-badge fr-badge--{color_value}">
+			{display_value}
+		<p/>
+		{/each}
 		{#if icon}
 			<img class="button-icon" src={icon.url} alt={`${value} icon`} />
 		{/if}

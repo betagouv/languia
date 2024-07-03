@@ -84,6 +84,19 @@ str | None
 </tr>
 
 <tr>
+<td align="left"><code>badges</code></td>
+<td align="left" style="width: 25%;">
+
+```python
+list[str | tuple[str, str]] | None
+```
+
+</td>
+<td align="left"><code>None</code></td>
+<td align="left">List of badges to display with their eventual subclass (e.g. ("example","green-menthe") )</td>
+</tr>
+
+<tr>
 <td align="left"><code>every</code></td>
 <td align="left" style="width: 25%;">
 
