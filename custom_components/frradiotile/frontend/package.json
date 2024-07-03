@@ -1,0 +1,24 @@
+{
+  "name": "gradio_frradiotile",
+  "version": "0.5.7",
+  "description": "Gradio UI packages",
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "private": false,
+  "main_changeset": true,
+  "main": "./Index.svelte",
+  "exports": {
+    ".": "./Index.svelte",
+    "./example": "./Example.svelte",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@gradio/atoms": "0.7.5",
+    "@gradio/statustracker": "0.7.0",
+    "@gradio/utils": "0.5.0"
+  },
+  "devDependencies": {
+    "@gradio/preview": "0.10.0"
+  }
+}
