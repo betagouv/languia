@@ -6,9 +6,8 @@ RUN apt-get update -y && apt-get install -y python3.9 python3.9-distutils curl
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 # TODO: virtualenv
 RUN python3.9 get-pip.py
-RUN pip3 install fschat
-RUN pip3 install fschat[model_worker,webui]
-RUN pip3 install openai plotly pydantic-settings sentry-sdk
+COPY requirements.txt /requirements.txt
+RUN pip3 install /requirements.txt
 
 # Specific to LANGU:IA: install required Gradio Custom Components
 FROM python:3.9-slim as custom_components
@@ -27,8 +26,6 @@ COPY --from=custom_components /custom_components/frbutton/dist/gradio_frbutton-0
 RUN pip3 install /gradio_frbutton-0.0.1-py3-none-any.whl
 COPY --from=custom_components /custom_components/frinput/dist/gradio_frinput-0.0.3-py3-none-any.whl /gradio_frinput-0.0.3-py3-none-any.whl
 RUN pip3 install /gradio_frinput-0.0.3-py3-none-any.whl
-
-RUN pip3 install ecologits huggingface-hub==0.23.5 python-slugify
 
 ARG GIT_COMMIT
 ENV GIT_COMMIT=$GIT_COMMIT
