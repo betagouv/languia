@@ -10,23 +10,22 @@ RUN pip3 install fschat
 RUN pip3 install fschat[model_worker,webui]
 RUN pip3 install openai plotly pydantic-settings sentry-sdk
 
-# Specific to LANGU:IA: install required Gradio Custom Components
-FROM python:3.9-slim as custom_components
-RUN apt update && apt install -y nodejs npm
-RUN pip3 install gradio
-COPY ./custom_components/ /custom_components/
-WORKDIR /custom_components/frbutton
-RUN gradio cc install && npm i -D @gradio/preview
-RUN gradio cc build
-WORKDIR /custom_components/frinput
-RUN gradio cc install && npm i -D @gradio/preview
-RUN gradio cc build
+# FROM python:3.9-slim as custom_components
+# RUN apt update && apt install -y nodejs npm
+# RUN pip3 install gradio
+# COPY ./custom_components/ /custom_components/
+# WORKDIR /custom_components/frbutton
+# RUN gradio cc install && npm i -D @gradio/preview
+# RUN gradio cc build
+# WORKDIR /custom_components/frinput
+# RUN gradio cc install && npm i -D @gradio/preview
+# RUN gradio cc build
 
-FROM build
-COPY --from=custom_components /custom_components/frbutton/dist/gradio_frbutton-0.0.1-py3-none-any.whl /gradio_frbutton-0.0.1-py3-none-any.whl
-RUN pip3 install /gradio_frbutton-0.0.1-py3-none-any.whl
-COPY --from=custom_components /custom_components/frinput/dist/gradio_frinput-0.0.1-py3-none-any.whl /gradio_frinput-0.0.1-py3-none-any.whl
-RUN pip3 install /gradio_frinput-0.0.1-py3-none-any.whl
+# FROM build
+# COPY --from=custom_components /custom_components/frbutton/dist/gradio_frbutton-0.0.1-py3-none-any.whl /gradio_frbutton-0.0.1-py3-none-any.whl
+# RUN pip3 install /gradio_frbutton-0.0.1-py3-none-any.whl
+# COPY --from=custom_components /custom_components/frinput/dist/gradio_frinput-0.0.1-py3-none-any.whl /gradio_frinput-0.0.1-py3-none-any.whl
+# RUN pip3 install /gradio_frinput-0.0.1-py3-none-any.whl
 
 RUN pip3 install ecologits huggingface-hub==0.23.5 python-slugify
 
@@ -35,6 +34,16 @@ ENV GIT_COMMIT=$GIT_COMMIT
 
 WORKDIR /app
 COPY . /app
+
+# Specific to LANGU:IA: install required Gradio Custom Components
+RUN apt update && apt install -y nodejs npm
+WORKDIR /app/custom_components/frbutton
+RUN gradio cc install && npm i -D @gradio/preview
+RUN gradio cc build
+WORKDIR /app/custom_components/frinput
+RUN gradio cc install && npm i -D @gradio/preview
+RUN gradio cc build
+# TODO: only copy custom_components/frinput/backend/gradio_frinput/templates
 
 VOLUME /data
 
