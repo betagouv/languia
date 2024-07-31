@@ -490,12 +490,12 @@ with gr.Blocks(
         with gr.Row():
             for i in range(config.num_sides):
                 label = "Modèle A" if i == 0 else "Modèle B"
-                with gr.Column():
+                # with gr.Column():
                     # {likeable}
                     # placeholder
                     #         placeholder
                     # a placeholder message to display in the chatbot when it is empty. Centered vertically and horizontally in the Chatbot. Supports Markdown and HTML.
-                    chatbots[i] = gr.Chatbot(
+                chatbots[i] = gr.Chatbot(
                         # TODO:
                         # type="messages",
                         elem_id=f"chatbot-{i}",
