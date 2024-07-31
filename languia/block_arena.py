@@ -496,8 +496,9 @@ with gr.Blocks(
                     #         placeholder
                     # a placeholder message to display in the chatbot when it is empty. Centered vertically and horizontally in the Chatbot. Supports Markdown and HTML.
                 chatbots[i] = gr.Chatbot(
+                        # type="tuples",
                         # TODO:
-                        # type="messages",
+                        type="messages",
                         elem_id=f"chatbot-{i}",
                         # min_width=
                         # height=
@@ -792,7 +793,14 @@ with gr.Blocks(
 
         def set_guided_prompt(event: gr.EventData):
             chosen_guide = event.target.value
-            if chosen_guide in ['variete','regional',"pedagogie","creativite","registre","maniere"]:
+            if chosen_guide in [
+                "variete",
+                "regional",
+                "pedagogie",
+                "creativite",
+                "registre",
+                "maniere",
+            ]:
                 preprompts = config.preprompts_table[chosen_guide]
             else:
                 logger.error("Type of guided prompt not listed")
@@ -814,19 +822,6 @@ with gr.Blocks(
             api_name=False,
         )
 
-        # @guided_prompt.change(inputs=guided_prompt, outputs=[send_area, textbox])
-        # def craft_guided_prompt(topic_choice):
-        #     if str(topic_choice) == "Québécois ?":
-        #         return [
-        #             gr.update(visible=True),
-        #             gr.update(value="Tu comprends-tu, quand je parle ?"),
-        #         ]
-        #     else:
-        #         return [
-        #             gr.update(visible=True),
-        #             gr.update(value="Quoque ch'est qu'te berdoules ?"),
-        #         ]
-
         # Step 2
 
         @textbox.change(inputs=textbox, outputs=send_btn, api_name=False)
@@ -840,24 +835,6 @@ with gr.Blocks(
             return gr.update(interactive=True)
 
         def goto_chatbot():
-            # textbox
-
-            # FIXME: when submitting empty text
-            # if len(text) <= 0:
-            #     for i in range(num_sides):
-            #         conversations_state[i].skip_next = True
-            #     return (
-            #         # 2 conversations_state
-            #         conversations_state
-            #         # 2 chatbots
-            #         + [x.to_gradio_chatbot() for x in conversations_state]
-            #         # text
-            #         + [""]
-            #         + [visible_row]
-            #         # Slow warning
-            #         + [""]
-            #     )
-
             # FIXME: tant que les 2 modèles n'ont pas répondu, le bouton "envoyer" est aussi inaccessible
             return (
                 [
@@ -880,13 +857,45 @@ with gr.Blocks(
                 + [gr.update(visible=True, interactive=True)]
             )
 
+        def send_msg(textbox, chatbot0, chatbot1):
+            print(chatbot0)
+            print(chatbot1)
+            # history = [["user", textbox]]
+
+            msg = gr.ChatMessage(role="user", content=textbox)
+            # chatbots[0].append(msg)
+            # chatbots[1].append(msg)
+            chatbot0.append(msg)
+            chatbot1.append(msg)
+
+            
+            return (chatbot0, chatbot1)
+            # return chatbot1
+
+        def bots_responses(chatbot0, chatbot1):
+
+            msg = gr.ChatMessage(role="assistant", content="Yo")
+            # chatbots[0].append(msg)
+            # chatbots[1].append(msg)
+            chatbot0.append(msg)
+            chatbot1.append(msg)
+            return (chatbot0, chatbot1)
+
+        # gr.on(
+        #     triggers=[textbox.submit, send_btn.click],
+        #     fn=add_text,
+        #     api_name=False,
+        #     inputs=conversations_state + [textbox],
+        #     # inputs=conversations_state + model_selectors + [textbox],
+        #     outputs=conversations_state + chatbots,
+        # ).then(
         gr.on(
             triggers=[textbox.submit, send_btn.click],
-            fn=add_text,
+            fn=send_msg,
             api_name=False,
-            inputs=conversations_state + [textbox],
+            inputs=[textbox] + chatbots,
             # inputs=conversations_state + model_selectors + [textbox],
-            outputs=conversations_state + chatbots,
+            outputs=[chatbots[0], chatbots[1]],
         ).then(
             fn=goto_chatbot,
             inputs=[],
@@ -899,10 +908,15 @@ with gr.Blocks(
                 # + [retry_btn]
                 + [conclude_btn]
             ),
+            # ).then(
+            #     fn=bot_response_multi,
+            #     inputs=conversations_state + [temperature, top_p, max_output_tokens],
+            #     outputs=conversations_state + chatbots,
+            #     api_name=False,
         ).then(
-            fn=bot_response_multi,
-            inputs=conversations_state + [temperature, top_p, max_output_tokens],
-            outputs=conversations_state + chatbots,
+            fn=bots_responses,
+            inputs=chatbots,
+            outputs=[chatbots[0], chatbots[1]],
             api_name=False,
         ).then(
             fn=enable_component,
