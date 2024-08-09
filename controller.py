@@ -3,12 +3,15 @@ from typing import List, Dict
 import asyncio
 import time
 from datetime import datetime
+import logging
 
 app = FastAPI()
 
 # Outage is now a dictionary with time_of_outage and model_name
 outages: List[Dict[str, str]] = []
 
+stream_logs = logging.StreamHandler()
+stream_logs.setLevel(logging.INFO)
 
 @app.post("/outages/", status_code=201)
 async def create_outage(model_name: str):
@@ -57,13 +60,18 @@ async def remove_outage(model_name: str):
     raise HTTPException(status_code=404, detail="Model not found in outages")
 
 
-import logging
 import os
 import openai
 from typing import Dict
+import json
 
+if os.getenv("LANGUIA_REGISTER_API_ENDPOINT_FILE"):
+    register_api_endpoint_file = os.getenv("LANGUIA_REGISTER_API_ENDPOINT_FILE")
+else:
+    register_api_endpoint_file = "register-api-endpoint-file.json"
 
-
+api_endpoint_info = json.load(open(register_api_endpoint_file))
+@app.get("/outages/{model_name}")
 async def test_model(model_name):
 
     # Log the outage test
@@ -78,19 +86,20 @@ async def test_model(model_name):
     max_new_tokens = 10
 
 
-
-    # Initialize the OpenAI client
-    api_key = os.environ["OPENAI_API_KEY"]
-    client = openai.OpenAI(
-        base_url="https://api.openai.com/v1",
-        api_key=api_key,
-        timeout=180,
-    )
+# if api_endpoint_info[model_name]["api_type"] == "openai"
 
     try:
+        # Initialize the OpenAI client
+        api_key = api_endpoint_info[model_name]["api_key"]
+        api_base = api_endpoint_info[model_name]["api_base"]
+        client = openai.OpenAI(
+            base_url=api_base,
+            api_key=api_key,
+            timeout=180,
+        )
         # Send a test message to the OpenAI API
         res = client.chat.completions.create(
-            model=model_name,
+            model=api_endpoint_info[model_name]["model_name"],
             messages=[{"role": "user", "content": test_message}],
             temperature=temperature,
             max_tokens=max_new_tokens,
@@ -108,27 +117,20 @@ async def test_model(model_name):
         if text:
             logging.info(f"Test successful: {model_name}")
             logging.info(f"Removing {model_name} from outage list")
-            remove_outage(model_name)
+            await remove_outage(model_name)
 
             return {"success": "true", "error_message": ""}
         else:
             logging.error(f"Test failed: {model_name}")
-            create_outage(model_name)
+            await create_outage(model_name)
             return {"success": "false", "error_message": "No response from OpenAI API"}
 
-    except openai.error.RateLimitError as e:
-        logging.error(f"Rate limit exceeded: {model_name}")
-        create_outage(model_name)
-        return {"success": "false", "error_message": "Rate limit exceeded"}
-
-    except openai.error.ServiceUnavailableError as e:
-        create_outage(model_name)
-        logging.error(f"Service unavailable: {model_name}")
-        return {"success": "false", "error_message": "Service unavailable"}
-
     except Exception as e:
-        logging.error(f"Unknown error: {model_name}, {str(e)}")
-        return {"success": "false", "error_message": "Unknown error"}
+        logging.error(f"Error: {model_name}, {str(e)}")
+        
+        outage = await create_outage(model_name)
+
+        return {"success": "false", "error_message": str(e)}
 
 
 async def scheduled_outage_tests():
