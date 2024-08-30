@@ -17,10 +17,10 @@
 
 	import { Clear } from "@gradio/icons";
 	import type { SelectData, LikeData } from "@gradio/utils";
-	import type { MessageRole, ComponentMessage, ComponentData } from "../types";
+	import type { MessageRole } from "../types";
 	import { MarkdownCode as Markdown } from "@gradio/markdown";
 	import type { FileData, Client } from "@gradio/client";
-	import type { I18nFormatter } from "js/app/src/gradio_helper";
+	import type { I18nFormatter } from "js/core/src/gradio_helper";
 	import Pending from "./Pending.svelte";
 	import MessageBox from "./MessageBox.svelte";
 
@@ -29,7 +29,9 @@
 
 	import Component from "./Component.svelte";
 	import LikeButtons from "./ButtonPanel.svelte";
-	import type { LoadedComponent } from "../../app/src/types";
+	import type { LoadedComponent } from "../../core/src/types";
+
+	import CopyAll from "./CopyAll.svelte";
 
 	export let _fetch: typeof fetch;
 	export let load_component: Gradio["load_component"];
@@ -80,6 +82,7 @@
 	export let selectable = false;
 	export let likeable = false;
 	export let show_share_button = false;
+	export let show_copy_all_button = false;
 	export let rtl = false;
 	export let show_copy_button = false;
 	export let avatar_images: [FileData | null, FileData | null] = [null, null];
@@ -151,10 +154,10 @@
 	let image_preview_source_alt: string;
 	let is_image_preview_open = false;
 
+	$: if (value || autoscroll || _components) {
+		scroll();
+	}
 	afterUpdate(() => {
-		if (autoscroll || _components) {
-			scroll();
-		}
 		div.querySelectorAll("img").forEach((n) => {
 			n.addEventListener("click", (e) => {
 				const target = e.target as HTMLImageElement;
@@ -275,6 +278,10 @@
 	</div>
 {/if}
 
+{#if show_copy_all_button}
+	<CopyAll {value} />
+{/if}
+
 <div
 	class={layout === "bubble" ? "bubble-wrap" : "panel-wrap"}
 	class:placeholder-container={value === null || value.length === 0}
@@ -339,6 +346,7 @@
 									class:message-markdown-disabled={!render_markdown}
 									style:user-select="text"
 									class:selectable
+									style:cursor={selectable ? "pointer" : "default"}
 									style:text-align={rtl ? "right" : "left"}
 									on:click={() => handle_select(i, message)}
 									on:keydown={(e) => {
@@ -674,6 +682,19 @@
 		max-height: 200px;
 	}
 
+	.message-wrap
+		> div
+		:not(.avatar-container)
+		div
+		:not(.image-button)
+		:global(img) {
+		border-radius: var(--radius-xl);
+		margin: var(--size-2);
+		width: 400px;
+		max-width: 30vw;
+		max-height: 30vw;
+	}
+
 	.message-wrap .message :global(a) {
 		color: var(--color-text-link);
 		text-decoration: underline;
@@ -691,12 +712,6 @@
 	.message-wrap .user :global(td),
 	.message-wrap .user :global(th) {
 		border: 1px solid var(--border-color-accent);
-	}
-
-	/* Lists */
-	.message-wrap :global(ol),
-	.message-wrap :global(ul) {
-		padding-inline-start: 2em;
 	}
 
 	/* KaTeX */

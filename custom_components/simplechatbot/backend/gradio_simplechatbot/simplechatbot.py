@@ -13,6 +13,7 @@ from typing import (
     List,
     Literal,
     Optional,
+    Sequence,
     Tuple,
     Type,
     TypedDict,
@@ -57,27 +58,6 @@ class MessageDict(TypedDict):
     metadata: NotRequired[MetadataDict]
 
 
-TupleFormat = List[List[Union[str, Tuple[str], Tuple[str, str], None]]]
-
-if TYPE_CHECKING:
-    from gradio.components import Timer
-
-
-def import_component_and_data(
-    component_name: str,
-) -> GradioComponent | ComponentMeta | Any | None:
-    try:
-        for component in utils.get_all_components():
-            if component_name == component.__name__ and isinstance(
-                component, ComponentMeta
-            ):
-                return component
-    except ModuleNotFoundError as e:
-        raise ValueError(f"Error importing {component_name}: {e}") from e
-    except AttributeError:
-        pass
-
-
 class FileMessage(GradioModel):
     file: FileData
     alt_text: Optional[str] = None
@@ -120,6 +100,27 @@ class ChatbotDataMessages(GradioRootModel):
     root: List[Message]
 
 
+TupleFormat = List[List[Union[str, Tuple[str], Tuple[str, str], None]]]
+
+if TYPE_CHECKING:
+    from gradio.components import Timer
+
+
+def import_component_and_data(
+    component_name: str,
+) -> GradioComponent | ComponentMeta | Any | None:
+    try:
+        for component in utils.get_all_components():
+            if component_name == component.__name__ and isinstance(
+                component, ComponentMeta
+            ):
+                return component
+    except ModuleNotFoundError as e:
+        raise ValueError(f"Error importing {component_name}: {e}") from e
+    except AttributeError:
+        pass
+
+
 class SimpleChatbot(Component):
     """
     Creates a chatbot that displays user-submitted messages and responses. Supports a subset of Markdown including bold, italics, code, tables.
@@ -135,8 +136,10 @@ class SimpleChatbot(Component):
     def __init__(
         self,
         value: (
-            list[
-                list[str | GradioComponent | tuple[str] | tuple[str | Path, str] | None]
+            Sequence[
+                Sequence[
+                    str | GradioComponent | tuple[str] | tuple[str | Path, str] | None
+                ]
             ]
             | Callable
             | None
@@ -145,7 +148,7 @@ class SimpleChatbot(Component):
         type: Literal["messages", "tuples"] = "tuples",
         label: str | None = None,
         every: Timer | float | None = None,
-        inputs: Component | list[Component] | set[Component] | None = None,
+        inputs: Component | Sequence[Component] | set[Component] | None = None,
         show_label: bool | None = None,
         container: bool = True,
         scale: int | None = None,
@@ -168,6 +171,7 @@ class SimpleChatbot(Component):
         likeable: bool = False,
         layout: Literal["panel", "bubble"] | None = None,
         placeholder: str | None = None,
+        show_copy_all_button=False,
     ):
         """
         Parameters:
@@ -198,6 +202,7 @@ class SimpleChatbot(Component):
             likeable: Whether the chat messages display a like or dislike button. Set automatically by the .like method but has to be present in the signature for it to show up in the config.
             layout: If "panel", will display the chatbot in a llm style layout. If "bubble", will display the chatbot with message bubbles, with the user and bot messages on alterating sides. Will default to "bubble".
             placeholder: a placeholder message to display in the chatbot when it is empty. Centered vertically and horizontally in the SimpleChatbot. Supports Markdown and HTML. If None, no placeholder is displayed.
+            show_copy_all_button: If True, will show a copy all button that copies all chatbot messages to the clipboard.
         """
         self.likeable = likeable
         if type not in ["messages", "tuples"]:
@@ -223,6 +228,7 @@ class SimpleChatbot(Component):
         self.bubble_full_width = bubble_full_width
         self.line_breaks = line_breaks
         self.layout = layout
+        self.show_copy_all_button = show_copy_all_button
         super().__init__(
             label=label,
             every=every,
