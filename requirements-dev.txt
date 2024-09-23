@@ -1,0 +1,15 @@
+fschat==0.2.36
+gradio==4.38.1
+fastapi==0.111.1
+huggingface-hub==0.23.5
+ecologits==0.4.0
+
+tomli
+json5
+gradio_modal
+openai
+sentry_sdk
+google-auth
+python-slugify
+pandas
+psycopg2-binary
