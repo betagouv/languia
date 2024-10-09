@@ -3,6 +3,8 @@ from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
@@ -17,6 +19,8 @@ from languia import config
 from languia.utils import size_desc, license_desc, license_attrs
 
 app = FastAPI()
+
+instrumentator = Instrumentator().instrument(app).expose(app, include_in_schema=False, should_gzip=True)
 
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 # app.mount("/arene/custom_components", StaticFiles(directory="custom_components"), name="custom_components")
